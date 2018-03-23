@@ -45,11 +45,12 @@ app.use(express.static("public"));
 
 // By default mongoose uses callbacks for async queries, we're setting it to use promises (.then syntax) instead
 // Connect to the Mongo DB
+
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/news-scraper";
 mongoose.Promise = Promise;
-mongoose.connect("mongodb://localhost/news-scrape", {
+mongoose.connect(MONGODB_URI, {
   useMongoClient: true
 });
-
 // Routes
 
 // // Route for getting all Articles from the db
