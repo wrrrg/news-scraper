@@ -7,7 +7,16 @@
 
   <div id="articles">  <ul>
       {{#each articles}}
-        <li data-id="{{this._id}}">{{this.title}} - <a href="{{this.link}}">Read More...</a></li>
+
+        <li data-id="{{this._id}}">
+          {{this.title}} -
+          <a href="{{this.link}}">Read More...</a>
+          <form action="/save" method="post">
+          <input type="hidden" name="title" value="{{this.title}}">
+          <input type="hidden" name="link" value={{this.link}}>
+            <button type="submit" name="button">Save Article</button>
+          </form>
+        </li>
       {{/each}}
     </ul></div>
 

@@ -12,6 +12,8 @@ var cheerio = require("cheerio");
 
 // Require all models
 var db = require("./models");
+var Article = require("./models/Article.js");
+var Note = require("./models/Note.js");
 
 var app = express();
 
@@ -77,8 +79,10 @@ app.get("/scrape", function(req, res) {
     var $ = cheerio.load(response.data);
 
     // Now, we grab every h2 within an article tag, and do the following:
+    var scrapedNews = {};
     $("article h2").each(function(i, element) {
       // Save an empty result object
+
       var result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
@@ -89,41 +93,58 @@ app.get("/scrape", function(req, res) {
         .children("a")
         .attr("href");
 
-      // Create a new Article using the `result` object built from scraping
-      db.Article.create(result)
-        .then(function(dbArticle) {
-          // View the added result in the console
-          console.log(dbArticle);
-        })
-        .catch(function(err) {
-          // If an error occurred, send it to the client
-          return res.json(err);
-        });
-    });
+      scrapedNews[i] = result;
 
-    // If we were able to successfully scrape and save an Article, send a message to the client
-    res.redirect("/");
+      });
+
+  var hbsObject = {
+    articles: scrapedNews
+  }
+  res.render("index", hbsObject);
+});
+});
+
+// save an article (C of Crud (create))
+app.post("/save", function(req, res){
+  var newArticle = {};
+
+  newArticle.title = req.body.title;
+  newArticle.link = req.body.link;
+
+  var newEntry = new Article(newArticle);
+
+  newEntry.save(function(err, obj) {
+    if (err) {
+      console.log(err)
+    }
+    else {
+      console.log(obj)
+    }
+  });
+
+  var hbObject = {
+    message: "Saved article - " + newArticle.title
+  };
+res.send("Saved article!");
+});
+
+// load up only the saved articles
+// (R of CRUD (read))
+
+app.get("/saved-articles", function(req, res) {
+  Article.find({}, function(error, obj) {
+    if (error){
+      console.log(error)
+    }
+    else {
+      var hbsObject = {
+        articles: obj
+      }
+          res.render("saved-articles", hbsObject)
+    };
   });
 });
 
-// // Route for getting all Articles from the db
-// app.get("/articles", function(req, res) {
-//   // Grab every document in the Articles collection
-//   db.Article.find({})
-//     .then(function(dbArticle) {
-//       // If we were able to successfully find Articles, send them back to the client
-//       // res.json(dbArticle);
-//       var hbsObject = {
-//         articles: dbArticle
-//       };
-//
-//       res.render("index", hbsObject);
-//     })
-//     .catch(function(err) {
-//       // If an error occurred, send it to the client
-//       res.json(err);
-//     });
-// });
 
 // Route for grabbing a specific Article by id, populate it with it's note
 app.get("/articles/:id", function(req, res) {
@@ -139,6 +160,21 @@ app.get("/articles/:id", function(req, res) {
       // If an error occurred, send it to the client
       res.json(err);
     });
+});
+
+// D part of CRUD - I think this is an app.get but having trouble
+app.delete("/delete/:id", function(req,res){
+  var id = req.params.id;
+  db.Article.findOneAndRemove({"_id":req.params.id}, function(err, offer){
+    if(err){
+      console.log(err);
+    }
+    else {
+      console.log("Deleted Article");
+    }
+
+  });
+  res.render("saved-articles");
 });
 
 // Route for saving/updating an Article's associated Note

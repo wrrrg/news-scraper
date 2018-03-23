@@ -1,0 +1,36 @@
+<div id="wrapper">
+  <h1>NYT Mongo Scraper Saved Articles</h1>
+
+  <form class="" action="/scrape" method="GET">
+    <button type="submit" name="button">Get Articles</button>
+  </form>
+
+  <div id="articles">  <ul>
+      {{#each articles}}
+        <li data-id="{{this._id}}">
+          {{this.title}} -
+          <a href="{{this.link}}">Read More...</a>
+            <button type="submit" class="delete-article" data-id="{{this._id}}">Remove Saved Article</button>
+        </li>
+      {{/each}}
+    </ul></div>
+
+  <div id="notes"></div>
+</div>
+
+{{!-- <script src="app.js"></script> --}}
+
+<script type="text/javascript">
+
+  $(document).on("click", ".delete-article", function(){
+    articleId = $(this).attr("data-id");
+
+    $.ajax({
+      type: "DELETE",
+      url: "/delete/" + articleId
+    }).then(function(data) {
+      location.href = "/saved-articles";
+      load();
+    })
+  });
+</script>
