@@ -1,0 +1,13 @@
+<div id="wrapper">
+  <h1>NYT Mongo Scraper</h1>
+
+  <div id="articles">  <ul>
+      {{#each articles}}
+        <li data-id="{{this._id}}">{{this.title}} - <a href="{{this.link}}">Read More...</a></li>
+      {{/each}}
+    </ul></div>
+
+  <div id="notes"></div>
+</div>
+
+{{!-- <script src="app.js"></script> --}}

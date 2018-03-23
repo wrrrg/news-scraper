@@ -13,10 +13,24 @@ var cheerio = require("cheerio");
 // Require all models
 var db = require("./models");
 
-var PORT = 3000;
-
-// Initialize Express
 var app = express();
+
+var PORT = process.env.PORT || 3000;
+
+// //Implements bodyParser
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.text());
+// app.use(bodyParser.json({ type: "application/vnd.api+json" }));
+
+// Serve static content for the app from the "public" directory in the application directory.
+app.use(express.static(__dirname + '/public'));
+
+// Set Handlebars.
+var exphbs = require("express-handlebars");
+
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 
 // Configure middleware
 
@@ -35,6 +49,12 @@ mongoose.connect("mongodb://localhost/news-scrape", {
 });
 
 // Routes
+
+app.get("/", function(req, res){
+
+    res.render("index");
+
+});
 
 // A GET route for scraping the echojs website
 app.get("/scrape", function(req, res) {
@@ -79,7 +99,12 @@ app.get("/articles", function(req, res) {
   db.Article.find({})
     .then(function(dbArticle) {
       // If we were able to successfully find Articles, send them back to the client
-      res.json(dbArticle);
+      // res.json(dbArticle);
+      var hbsObject = {
+        articles: dbArticle
+      };
+
+      res.render("index", hbsObject)
     })
     .catch(function(err) {
       // If an error occurred, send it to the client
