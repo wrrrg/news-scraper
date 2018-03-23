@@ -1,6 +1,10 @@
 <div id="wrapper">
   <h1>NYT Mongo Scraper</h1>
 
+  <form class="" action="/scrape" method="GET">
+    <button type="submit" name="button">Get Articles</button>
+  </form>
+
   <div id="articles">  <ul>
       {{#each articles}}
         <li data-id="{{this._id}}">{{this.title}} - <a href="{{this.link}}">Read More...</a></li>
