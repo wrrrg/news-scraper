@@ -8,7 +8,7 @@
   <div id="articles">  <ul>
       {{#each articles}}
         <li data-id="{{this._id}}">
-          <p data-id="{{this._id}}">{{this.title}}</p> -
+          <p data-id="{{this._id}}">{{this.title}}</br>{{this.summary}}</p> -
           <a href="{{this.link}}">Read More...</a>
             <button type="submit" class="delete-article" data-id="{{this._id}}">Remove Saved Article</button>
         </li>
@@ -59,11 +59,11 @@
         $("#notes").append("<button data-id='" + data._id + "' class='savenote'>Save Note</button>");
 
         // If there's a note in the article
-        if (data.note) {
+        if (data.notes) {
           // Place the title of the note in the title input
-          $("#titleinput").val(data.note.title);
+          $("#titleinput").val(data.notes[0]["title"]);
           // Place the body of the note in the body textarea
-          $("#bodyinput").val(data.note.body);
+          $("#bodyinput").val(data.note[0]["body"]);
         }
       });
   });

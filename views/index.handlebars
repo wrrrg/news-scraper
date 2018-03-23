@@ -9,11 +9,13 @@
       {{#each articles}}
 
         <li data-id="{{this._id}}">
-          {{this.title}} -
+          {{this.title}} -</br>
+          {{this.summary}}
           <a href="{{this.link}}">Read More...</a>
           <form action="/save" method="post">
           <input type="hidden" name="title" value="{{this.title}}">
-          <input type="hidden" name="link" value={{this.link}}>
+          <input type="hidden" name="link" value="{{this.link}}">
+          <input type="hidden" name="summary" value="{{this.summary}}">
             <button type="submit" name="button">Save Article</button>
           </form>
         </li>

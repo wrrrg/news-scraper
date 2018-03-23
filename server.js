@@ -93,6 +93,10 @@ app.get("/scrape", function(req, res) {
       result.link = $(this)
         .children("a")
         .attr("href");
+      result.summary = $(this)
+        .parent("article")
+        .children("p.summary")
+        .text();
 
       scrapedNews[i] = result;
 
@@ -111,8 +115,10 @@ app.post("/save", function(req, res){
 
   newArticle.title = req.body.title;
   newArticle.link = req.body.link;
+  newArticle.summary =req.body.summary;
 
   var newEntry = new Article(newArticle);
+  console.log(newEntry);
 
   newEntry.save(function(err, obj) {
     if (err) {
@@ -126,7 +132,7 @@ app.post("/save", function(req, res){
   var hbObject = {
     message: "Saved article - " + newArticle.title
   };
-res.send("Saved article!");
+res.send(JSON.stringify(newArticle));
 });
 
 // load up only the saved articles
@@ -184,18 +190,19 @@ app.get("/articles/:id", function(req, res) {
 app.post("/articles/:id", function(req, res) {
   // Create a new note and pass the req.body to the entry
   var articleId = req.params.id;
+  var newNote = new Note(req.body);
   Note.create(req.body)
     .then(function(dbNote) {
       console.log(dbNote);
-      // If a Note was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Note
+      // If a Note was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Note. Since we want multiple notes, we need to be updating an array.
       // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
       // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
-      // var found = db.Article.findOne({_id: articleId});
-      // console.log(found);
-      return Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+
+      Article.findOneAndUpdate({ _id: req.params.id }, {$push: {notes: dbNote._id}}, { new: true, upsert: true });
+    })
     .then(function(dbArticle) {
       // If we were able to successfully update an Article, send it back to the client
-      console.log("Found article " + dbArticle);
+
       res.json(dbArticle);
     })
     .catch(function(err) {
